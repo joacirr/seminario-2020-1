@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Form;
+
+use App\Entity\Product;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
+
+class ProductType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder
+            ->add('name')
+            ->add('price', MoneyType::class, [
+                'currency' => 'BRL',
+                'attr' => [
+                    'maxLength' => 11,
+                    "data-inputmask" => "'alias': 'numeric', 'radixPoint': ',', 'removeMaskOnSubmit': true, 'groupSeparator': '.', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'placeholder': '0'"
+                ]
+            ])
+            ->add('description', TextareaType::class)
+            ->add('image', FileType::class, [
+                'label' => 'image',
+                'mapped' => false,
+                'required' => true,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '1024k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png'
+                        ],
+                        'mimeTypesMessage' => 'error.only.image',
+                    ])
+                ],
+            ])
+            ->add('save', SubmitType::class);
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => Product::class,
+        ]);
+    }
+}
